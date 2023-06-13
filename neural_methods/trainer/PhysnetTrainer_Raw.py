@@ -63,6 +63,9 @@ class PhysnetTrainerRaw(BaseTrainer):
     def set_eval(self):
         self.model.eval()
 
+    def print_weight(self):
+        print(self.model.ConvBlock1[0].weight.mean().item())
+
     def set_loss_func(self):
         # Use Negative Pearson Correlation coefficients as training loss
         if self.config.TRAIN.LOSS == "NP":
@@ -133,7 +136,7 @@ class PhysnetTrainerRaw(BaseTrainer):
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
             self.save_model(epoch)
-
+            self.print_weight()
             # No validation if TEST.USE_LAST_EPOCH is True
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)

@@ -42,6 +42,10 @@ class PhysnetTrainer(PhysnetTrainerRaw):
         self.model.eval()
         self.enhancemodel.eval()
 
+    def print_weight(self):
+        print("Physnet: ", self.model.ConvBlock1[0].weight.mean().item())
+        print("IEM: ", self.enhancemodel.enhance.in_conv[0].weight.mean().item())
+
     def load_model_weight(self):
         # Freeze the model
         # VERY IMPORTANT for keeping same behaviour at test immediately after training and test afterwards
@@ -124,8 +128,8 @@ class PhysnetTrainer(PhysnetTrainerRaw):
                 # for self.model, keep as is
                 if self.config.ENHANCEMODEL_NAME == "SCI":
                     self.enhancemodel = Finetunemodel(last_epoch_model_path)
-                print("[Test Last Epoch] Enhance path: ", self.config.INFERENCE.ENHANCEMODEL_PATH)
-                print("[Test Last Epoch] PhysNet path: ", last_epoch_model_path)
+                print("[Test Last Epoch] Enhance path: ", last_epoch_model_path)
+                print("[Test Last Epoch] PhysNet path: ", self.config.TRAIN.MODEL_PATH)
             else:
                 # raise Exception("not implemented for now...")
                 best_model_path = os.path.join(

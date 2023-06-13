@@ -1,0 +1,80 @@
+# python main.py --config_file production/configs/ubfc_physnet_settings.yaml
+BASE: ['']
+TOOLBOX_MODE: "only_test" # "train_and_test"  or "only_test"
+DATALOADER_WORKERS: 12
+LOG:
+  PATH: runs/exp # output directory, for filename it is model.name + time + .txt
+TRAIN:
+  LOSS: NP # NP or SNP
+  BATCH_SIZE: 4
+  EPOCHS: 20
+  LR: 3e-3
+  MODEL_FILE_NAME: physnet_bh_middle
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: default
+    DO_PREPROCESS: False            # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.5
+    EXCEPT: False 
+    PREPROCESS :
+      MULTI_PROCESS_QUOTA: 4
+      DATA_TYPE: ['Raw'] 
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+# if TEST.USE_LAST_EPOCH is true, we only need to leave VALID.DATA.DATASET to make them work
+VALID:
+  DATA:
+    DATASET: BH      
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: default                      # low/middle/high
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.8
+    END: 1.0
+    EXCEPT: False
+    PREPROCESS :
+      MULTI_PROCESS_QUOTA: 4
+      DATA_TYPE: ['Raw'] 
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+MODEL:
+  DROP_RATE: 0.2 # irrlevant in Physnet
+  NAME: Physnet-Raw
+  PHYSNET:
+    FRAME_NUM: 128
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  MODEL_PATH: PreTrainedModels/BH_SizeW72_SizeH72_ClipLength128_DataTypeRaw_LabelTypeDiffNormalized_Large_boxTrue_Large_size1.0_Dyamic_DetFalse_det_len128/physnet_bh_middle_Epoch19.pth

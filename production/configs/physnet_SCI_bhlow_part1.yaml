@@ -1,0 +1,84 @@
+# python main.py --config_file production/configs/bhlow_part1_SCI_finetune_settings.yaml
+
+BASE: ['']
+TOOLBOX_MODE: "train_and_test" # "train_and_test"  or "only_test"
+DATALOADER_WORKERS: 12
+LOG:
+  PATH: runs/exp # output directory, for filename it is model.name + time + .txt
+TRAIN:
+  LOSS: SNP # NP or SNP
+  BATCH_SIZE: 4
+  EPOCHS: 20
+  LR: 3e-4 
+  MODEL_FILE_NAME: physnet_SCI_bh
+  MODEL_PATH: production/models/ubfc_physnet_NPLoss2.pth # for transfer learning
+  ENHANCEMODEL_PATH: enhancement/medium.pt # the best pretrained weigths for our experiment
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: low                         # low/middle/high
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.5
+    EXCEPT: False
+    PREPROCESS :
+      MULTI_PROCESS_QUOTA: 4
+      DATA_TYPE: ['Raw'] 
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+# if TEST.USE_LAST_EPOCH is true, we only need to leave VALID.DATA.DATASET to make them work
+VALID:
+  DATA:
+    DATASET: BH    
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: low                         # low/middle/high
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.5
+    EXCEPT: True
+    PREPROCESS :
+      MULTI_PROCESS_QUOTA: 4
+      DATA_TYPE: ['Raw'] 
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+MODEL:
+  DROP_RATE: 0.2 # irrlevant in Physnet
+  NAME: Physnet-SCI
+  PHYSNET:
+    FRAME_NUM: 128
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"
+  MODEL_PATH: production/models/ubfc_physnet_NPLoss2.pth
+  ENHANCEMODEL_PATH: production/models/SCI_bhlow_another_teston_0.0_0.5.pth

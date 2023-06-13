@@ -1,0 +1,107 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 20
+  LR: 3e-4
+  LOSS: SMSE
+  MODEL_FILE_NAME: bh_deepphys
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: low
+    DO_PREPROCESS: false
+    DATA_FORMAT: NDCHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.5
+    END: 1.0
+    PREPROCESS :
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: true
+      CHUNK_LENGTH: 128
+      DYNAMIC_DETECTION: false
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: true
+      LARGE_FACE_BOX: true
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+    EXCEPT: false
+  MODEL_PATH: production/models/Jun_results/deep_raw_part2.pth
+  ENHANCEMODEL_PATH: enhancement/medium.pt
+  OPTIMIZER:
+    EPS: 0.0001
+    BETAS:
+    - 0.9
+    - 0.999
+    MOMENTUM: 0.9
+VALID:
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: low
+    DO_PREPROCESS: false     
+    DATA_FORMAT: NDCHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.5
+    END: 1.0
+    EXCEPT: true
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: true
+      CHUNK_LENGTH: 128
+      DYNAMIC_DETECTION: false
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: true
+      LARGE_FACE_BOX: true
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: false
+  DATA:
+    FS: 15
+    DATASET: BH
+    SPECIFIC: low
+    DO_PREPROCESS: false
+    DATA_FORMAT: NDCHW
+    DATA_PATH: /mnt/d/Document/Dataset/Pub_BH-rPPG_FULL
+    CACHED_PATH: /mnt/d/Document/Dataset/Preprocessed
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.5
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: true
+      CHUNK_LENGTH: 128
+      DYNAMIC_DETECTION: false
+      DYNAMIC_DETECTION_FREQUENCY : 128
+      CROP_FACE: true
+      LARGE_FACE_BOX: true
+      LARGE_BOX_COEF: 1.0
+      H: 72
+      W: 72
+    EXCEPT: false
+  SAVE_RESULT_NAME: SharedTrainedModel/results_npz/ttt_Physnet_BH_low.npz
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys-Raw
+
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  MODEL_PATH: production/models/Jun_results/deep_raw_part2.pth
+  ENHANCEMODEL_PATH: production/models/Jun_results/deep_sci_part2.pth
+                    
